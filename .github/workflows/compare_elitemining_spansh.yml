@@ -1,0 +1,31 @@
+name: Compare EliteMining DB vs Spansh
+
+on:
+  workflow_dispatch:
+    inputs:
+      sample:
+        description: "Number of systems (0 = all)"
+        required: true
+        default: "500"
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install requests
+
+      - name: Compare databases
+        run: python compare_elitemining_spansh.py --sample "${{ inputs.sample }}" --batch-size 25 --delay 1.6
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: elitemining-spansh-comparison
+          path: comparison_output/
